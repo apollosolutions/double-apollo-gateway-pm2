@@ -37,14 +37,3 @@ export function listen(bus, { from }, fn) {
     }
   });
 }
-
-/**
- * @param {string} to
- * @param {any} msg
- */
-export function send(to, msg) {
-  process.send?.({
-    type: "process:msg",
-    data: { to, msg },
-  });
-}

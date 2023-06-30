@@ -4,7 +4,7 @@ import {
 } from "@apollo/gateway";
 import pm2 from "pm2";
 import { createMachine, interpret } from "xstate";
-import { connect, launchBus, listen, send } from "./pm2.js";
+import { connect, launchBus, listen } from "./pm2.js";
 import { z } from "zod";
 
 const envSchema = z.object({
@@ -32,14 +32,19 @@ const machine = createMachine({
     },
     cyclingLeader: {
       on: {
-        READY: "cyclingFollower",
+        READY: "pause",
       },
       entry: () => {
-        send("leader", "killyourself");
-        process.send?.({
-          type: "process:msg",
-          data: { to: "leader", msg: "killyourself" },
+        pm2.restart("leader", (err) => {
+          if (err) {
+            throw err;
+          }
         });
+      },
+    },
+    pause: {
+      after: {
+        5000: "cyclingFollower",
       },
     },
     cyclingFollower: {
@@ -47,7 +52,11 @@ const machine = createMachine({
         READY: "polling",
       },
       entry: () => {
-        send("follower", "killyourself");
+        pm2.restart("follower", (err) => {
+          if (err) {
+            throw err;
+          }
+        });
       },
     },
   },

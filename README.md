@@ -27,10 +27,8 @@ yarn subgraph
 Start a load test
 
 ```sh
-k6 run --no-connection-reuse --duration 60s k6.js
+k6 run --duration 60s k6.js
 ```
-
-(K6 will aggressively reuse connections and the node HTTP server will never restart.)
 
 Update your supergraph with `rover subgraph publish` and watch the logs to see the "leader" and "follower" gateway instances cycle.
 

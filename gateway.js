@@ -6,7 +6,6 @@ import express from "express";
 import http from "http";
 import cors from "cors";
 import bodyParser from "body-parser";
-import { connect, launchBus, listenTo } from "./pm2.js";
 import { z } from "zod";
 
 const envSchema = z.object({
@@ -17,20 +16,6 @@ const envSchema = z.object({
 });
 
 const env = envSchema.parse(process.env);
-
-const NAME = env.NAME;
-
-await connect();
-const bus = await launchBus();
-
-listenTo(bus, { from: "updater", to: NAME }, (packet) => {
-  if (packet.data.msg === "killyourself") {
-    console.log(NAME, "killing myself");
-    httpServer.close(() => {
-      process.exit(0);
-    });
-  }
-});
 
 // @ts-ignore
 class NonPollingUplinkSupergraphManager extends UplinkSupergraphManager {
@@ -73,3 +58,13 @@ await new Promise((resolve) =>
   httpServer.listen({ port: parseInt(env.PORT) }, () => resolve(httpServer))
 );
 console.log(`🚀 Gateway ready at http://localhost:${env.PORT}`);
+
+process.on("SIGINT", async () => {
+  console.log("SIGINT");
+  await server.stop();
+  console.log("apollo server stopped");
+  httpServer.close(() => {
+    console.log("http server closed");
+    process.exit(0);
+  });
+});
