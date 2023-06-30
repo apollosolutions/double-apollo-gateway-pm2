@@ -40,4 +40,5 @@ You should see no downtime at [http://localhost:4000/](http://localhost:4000/) w
 
 ## Notes
 
+- Haven't quite got the graceful restart to work.
 - This setup complicates resource provisioning. You now need >2 CPUs for one server, since we're actually running two load balanced servers and an extra process for polling uplink. When the supergraph updates, one of the two processes will restart, so the remaining process needs enough throughput to handle all requests.
