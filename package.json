@@ -1,0 +1,27 @@
+{
+  "name": "graceful-gateway",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@apollo/gateway": "^2.4.8",
+    "@apollo/server": "^4.7.5",
+    "@types/cors": "^2.8.13",
+    "@types/express": "^4.17.17",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "graphql": "^16.7.1",
+    "pm2": "^5.3.0",
+    "typescript": "^5.1.6",
+    "xstate": "^4.38.0",
+    "zod": "^3.21.4"
+  },
+  "scripts": {
+    "rover": "rover subgraph publish $APOLLO_GRAPH_REF --name subgraph --schema subgraph.graphql --routing-url http://127.0.0.1:4001/ --allow-invalid-routing-url",
+    "subgraph": "docker run -e IS_SUBGRAPH=true -e PORT=4001 -p 4001:4001 -v $(pwd)/subgraph.graphql:/app/schema.graphql ghcr.io/apollosolutions/apollo-server-with-mocks:main",
+    "start": "pm2 start ecosystem.config.cjs",
+    "delete": "pm2 delete ecosystem.config.cjs"
+  }
+}
